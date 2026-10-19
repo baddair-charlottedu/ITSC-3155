@@ -1,49 +1,35 @@
-import data
-import cashier
-import sandwich_maker
+from typing import Union
+from fastapi import FastAPI
 
+app = FastAPI()
 
-recipes = data.recipes
-resources = data.resources
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
 
-def show_report(machine_resources):
-    print(f"Bread: {machine_resources['bread']} slice(s)")
-    print(f"Ham: {machine_resources['ham']} slice(s)")
-    print(f"Cheese: {machine_resources['cheese']} ounce(s)")
+from typing import Union
+from fastapi import FastAPI
+from pydantic import BaseModel
 
+app = FastAPI()
 
-def main():
-    machine = sandwich_maker.SandwichMachine(resources)
-    cashier_machine = cashier.Cashier()
+class Item(BaseModel):
+    name: str
+    price: float
+    is_offer: Union[bool, None] = None
 
-    is_on = True
+@app. get("/")
+def read_root():
+    return {"Hello": "World"}
 
-    while is_on:
-        choice = input(
-            "What would you like? (small/ medium/ large/ off/ report): "
-        ).strip().lower()
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
 
-        if choice == "off":
-            is_on = False
-
-        elif choice == "report":
-            show_report(machine.machine_resources)
-
-        elif choice in recipes:
-            order = recipes[choice]
-            ingredients = order["ingredients"]
-            cost = order["cost"]
-
-            if machine.check_resources(ingredients):
-                coins = cashier_machine.process_coins()
-
-                if cashier_machine.transaction_result(coins, cost):
-                    machine.make_sandwich(choice, ingredients)
-
-        else:
-            print("Please choose a valid option.")
-
-
-if __name__ == "__main__":
-    main()
+@app.put("/items/{item_id}")
+def update_item(item_id: int, item: Item):
+    return {"item_name": item.name, "item_id": item_id}
